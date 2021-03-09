@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb')
+const { MongoClient, ObjectID } = require('mongodb')
 
 // Revealing module pattern
 function circulationRepo() {
@@ -46,6 +46,23 @@ function circulationRepo() {
     })
   }
 
+  function getById(id) {
+    return new Promise(async (resolve, reject) => {
+      const client = new MongoClient(url, { useUnifiedTopology: true })
+      try {
+        await client.connect()
+        const db = client.db(dbName)
+        const item = await db
+          .collection('newspapers')
+          .findOne({ _id: ObjectID(id) })
+        resolve(item)
+        client.close()
+      } catch (error) {
+        reject(error)
+      }
+    })
+  }
+
   function loadData(data) {
     return new Promise(async (resolve, reject) => {
       const client = new MongoClient(url, { useUnifiedTopology: true })
@@ -61,7 +78,7 @@ function circulationRepo() {
     })
   }
 
-  return { loadData, get }
+  return { loadData, get, getById }
 }
 
 module.exports = circulationRepo()
