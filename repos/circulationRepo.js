@@ -63,13 +63,29 @@ function circulationRepo() {
     })
   }
 
+  function add(item) {
+    return new Promise(async (resolve, reject) => {
+      const client = new MongoClient(url, { useUnifiedTopology: true })
+      try {
+        await client.connect()
+        const db = client.db(dbName)
+        const addedItem = await db.collection('newspapers').insertOne(item)
+
+        resolve(addedItem.ops[0])
+        client.close()
+      } catch (error) {
+        reject(error)
+      }
+    })
+  }
+
   function loadData(data) {
     return new Promise(async (resolve, reject) => {
       const client = new MongoClient(url, { useUnifiedTopology: true })
       try {
         await client.connect()
         const db = client.db(dbName)
-        results = await db.collection('newspapers').insertMany(data)
+        const results = await db.collection('newspapers').insertMany(data)
         resolve(results)
         client.close()
       } catch (error) {
@@ -78,7 +94,7 @@ function circulationRepo() {
     })
   }
 
-  return { loadData, get, getById }
+  return { loadData, get, getById, add }
 }
 
 module.exports = circulationRepo()
