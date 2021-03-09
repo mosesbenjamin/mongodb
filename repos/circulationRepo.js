@@ -79,6 +79,26 @@ function circulationRepo() {
     })
   }
 
+  function update(id, newItem) {
+    return new Promise(async (resolve, reject) => {
+      const client = new MongoClient(url, { useUnifiedTopology: true })
+      try {
+        await client.connect()
+        const db = client.db(dbName)
+        const updatedItem = await db
+          .collection('newspapers')
+          .findOneAndReplace({ _id: ObjectID(id) }, newItem, {
+            returnOriginal: false,
+          })
+
+        resolve(updatedItem.value)
+        client.close()
+      } catch (error) {
+        reject(error)
+      }
+    })
+  }
+
   function loadData(data) {
     return new Promise(async (resolve, reject) => {
       const client = new MongoClient(url, { useUnifiedTopology: true })
@@ -94,7 +114,7 @@ function circulationRepo() {
     })
   }
 
-  return { loadData, get, getById, add }
+  return { loadData, get, getById, add, update }
 }
 
 module.exports = circulationRepo()
