@@ -62,6 +62,9 @@ async function main() {
     assert(removed)
     const deletedItem = await circulationRepo.getById(addedItem._id)
     assert.equal(deletedItem, null)
+
+    const averageFinalists = await circulationRepo.averageFinalists()
+    console.log('Average Finalists:' + averageFinalists)
   } catch (error) {
     console.log(error)
   } finally {
